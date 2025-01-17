@@ -1,7 +1,23 @@
 import os
 import argparse
+import cv2
+import tensorflow as tf
+from tqdm import tqdm
 from moviepy import VideoFileClip
 from transnetv2 import TransNetV2
+
+# 加载模型
+def load_model():
+    gpus = tf.config.experimental.list_physical_devices('GPU')
+    if gpus:
+        try:
+            for gpu in gpus:
+                tf.config.experimental.set_memory_growth(gpu, True)
+        except RuntimeError as e:
+            print(e)
+
+    model = tf.saved_model.load('inference/transnetv2-weights/')
+    return model
 
 if __name__ == '__main__':
 
@@ -17,7 +33,8 @@ if __name__ == '__main__':
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
-    model = TransNetV2()
+    # 加载模型
+    model = load_model()
     video_frames, single_frame_predictions, all_frame_predictions = model.predict_video_2(video_path)
     scenes = model.predictions_to_scenes(single_frame_predictions)
 
