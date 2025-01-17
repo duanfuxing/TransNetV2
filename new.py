@@ -6,6 +6,7 @@ from tqdm import tqdm
 from moviepy import VideoFileClip
 from transnetv2 import TransNetV2
 
+
 # 加载模型
 def load_model():
     gpus = tf.config.experimental.list_physical_devices('GPU')
@@ -16,8 +17,11 @@ def load_model():
         except RuntimeError as e:
             print(e)
 
-    model = tf.saved_model.load('inference/transnetv2-weights/')
+    model_dir = os.path.join(os.path.dirname(__file__), "transnetv2-weights/")
+    model = tf.saved_model.load(model_dir)
+
     return model
+
 
 if __name__ == '__main__':
 
@@ -35,6 +39,7 @@ if __name__ == '__main__':
 
     # 加载模型
     model = load_model()
+
     video_frames, single_frame_predictions, all_frame_predictions = model.predict_video(video_path)
     scenes = model.predictions_to_scenes(single_frame_predictions)
 
