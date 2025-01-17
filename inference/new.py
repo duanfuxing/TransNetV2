@@ -178,14 +178,14 @@ def main():
     # 加载视频文件
     video_clip = VideoFileClip(args.input)
 
-    # 确保输出文件名包含扩展名，使用 .mp4 作为默认格式
-    output_path = args.output if args.output.endswith('.mp4') else args.output + '.mp4'
-
-    # 切割视频并保存
+    # 为每个切片生成独立的输出文件名
     for i, (start, end) in enumerate(scenes):
         start_time = start / video_clip.fps
         end_time = end / video_clip.fps
         segment_clip = video_clip.subclipped(start_time, end_time)
+
+        # 为每个视频片段生成唯一文件名，输出到指定目录
+        output_path = f"{args.output}/segment_{i + 1}.mp4"
 
         # 输出每个视频片段
         segment_clip.write_videofile(output_path, codec='libx264', fps=video_clip.fps)
