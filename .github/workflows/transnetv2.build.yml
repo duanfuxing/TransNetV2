@@ -3,7 +3,7 @@ name: transnetv2 build CI
 on:
   push:
     paths:
-      - 'inference/Dockerfile-transnetv2'
+      - './inference/Dockerfile-transnetv2'
       - '.github/workflows/transnetv2.build.yml'
 
 jobs:
@@ -27,7 +27,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: inference  # 设置构建上下文为Dockerfile所在目录
-          file: inference/Dockerfile-transnetv2  # 指定Dockerfile路径
+          file: ./inference/Dockerfile-transnetv2  # 指定Dockerfile路径
           push: true
           tags: catchoco/transnetv2:gpu-v1.0
           platforms: linux/amd64
