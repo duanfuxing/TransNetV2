@@ -17,8 +17,17 @@ class TransNetV2:
         gpus = tf.config.experimental.list_physical_devices('GPU')
         if gpus:
             try:
-                for gpu in gpus:
-                    tf.config.experimental.set_memory_growth(gpu, True)
+                # 选择第一个 GPU
+                gpu = gpus[0]
+
+                # 设置内存增长为 True，允许 TensorFlow 动态分配内存
+                tf.config.experimental.set_memory_growth(gpu, True)
+
+                # 设置 GPU 内存使用上限（例如，限制使用最多 4GB 内存）
+                tf.config.experimental.set_virtual_device_configuration(
+                    gpu,
+                    [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=4096)])
+
             except RuntimeError as e:
                 print(e)
 
