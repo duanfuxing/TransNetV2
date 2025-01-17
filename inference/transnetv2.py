@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import tensorflow as tf
+from moviepy import VideoFileClip
 
 
 class TransNetV2:
@@ -86,6 +87,19 @@ class TransNetV2:
 
         video = np.frombuffer(video_stream, np.uint8).reshape([-1, 27, 48, 3])
         return (video, *self.predict_frames(video))
+
+    def predict_video_2(self, video_fn: str):
+        print("[TransNetV2] Extracting frames from {}".format(video_fn))
+        clip = VideoFileClip(video_fn, target_resolution=(27, 48))
+        duration = math.floor(clip.duration * 10) / 10
+        fps = clip.fps  # 视频的帧率
+        frames = []
+        for t in range(0, int(duration * fps)):
+            frame = clip.get_frame(t / fps)  # 获取当前时间点的帧
+            if len(frame) != 0:  # 如果帧的长度不为零
+                frames.append(frame)  # 将帧添加到 frames 列表中
+        video = np.array(frames)
+        return video, *self.predict_frames(video)
 
     @staticmethod
     def predictions_to_scenes(predictions: np.ndarray, threshold: float = 0.5):
