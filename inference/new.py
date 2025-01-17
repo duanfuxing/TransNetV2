@@ -13,6 +13,15 @@ import tensorflow as tf
 class TransNetV2:
 
     def __init__(self, model_dir=None):
+
+        gpus = tf.config.experimental.list_physical_devices('GPU')
+        if gpus:
+            try:
+                for gpu in gpus:
+                    tf.config.experimental.set_memory_growth(gpu, True)
+            except RuntimeError as e:
+                print(e)
+
         if model_dir is None:
             model_dir = os.path.join(os.path.dirname(__file__), "transnetv2-weights/")
             if not os.path.isdir(model_dir):
