@@ -5,8 +5,9 @@ import argparse
 import os
 from tqdm import tqdm
 
+
+# 加载模型
 def load_model():
-    """加载模型"""
     gpus = tf.config.experimental.list_physical_devices('GPU')
     if gpus:
         try:
@@ -18,8 +19,9 @@ def load_model():
     model = tf.saved_model.load('inference/transnetv2-weights/')
     return model
 
+
+# 生成器函数，分批yield视频帧
 def get_video_frames_generator(video_path, batch_size=32):
-    """生成器函数，分批yield视频帧"""
     cap = cv2.VideoCapture(video_path)
     batch_frames = []
 
@@ -33,14 +35,16 @@ def get_video_frames_generator(video_path, batch_size=32):
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         batch_frames.append(frame_rgb)
 
-        if len(batch_frames) == 3:  # 保证每批包含 3 帧
+        # 确保每次读取 3 的倍数帧
+        if len(batch_frames) == 3:
             yield np.array(batch_frames)
             batch_frames = []
 
     cap.release()
 
+
+# 处理视频并按场景切分
 def process_video(video_path, output_dir, batch_size=32):
-    """处理视频并按场景切分"""
     os.makedirs(output_dir, exist_ok=True)
 
     # 获取视频信息
@@ -62,7 +66,7 @@ def process_video(video_path, output_dir, batch_size=32):
 
     print("正在处理视频帧...")
     for batch_frames in tqdm(get_video_frames_generator(video_path, batch_size),
-                           total=(total_frames + batch_size - 1) // batch_size):
+                             total=(total_frames + batch_size - 1) // batch_size):
         batch_frames_5d = np.expand_dims(batch_frames, axis=-1)  # 加入时间维度
         batch_frames_5d = np.repeat(batch_frames_5d, 3, axis=-1)  # 重复帧数据，确保 depth 是 3 的倍数
         predictions = model.signatures["serving_default"](
@@ -78,13 +82,13 @@ def process_video(video_path, output_dir, batch_size=32):
 
     print("检测场景转换点...")
     for i in range(1, len(all_predictions)):
-        if all_predictions[i] > threshold and all_predictions[i-1] <= threshold:
+        if all_predictions[i] > threshold and all_predictions[i - 1] <= threshold:
             scene_transitions.append(i)
 
     scene_transitions.append(len(frames_buffer))  # 添加视频结束点
 
     # 保存每个场景
-    print(f"开始保存{len(scene_transitions)-1}个场景...")
+    print(f"开始保存{len(scene_transitions) - 1}个场景...")
     for i in range(len(scene_transitions) - 1):
         start = scene_transitions[i]
         end = scene_transitions[i + 1]
@@ -106,6 +110,7 @@ def process_video(video_path, output_dir, batch_size=32):
         out.release()
         print(f"保存场景 {i}: {output_path} (帧 {start} - {end})")
 
+
 def main():
     parser = argparse.ArgumentParser(description="视频场景切分工具")
     parser.add_argument("--video", required=True, help="输入视频路径")
@@ -119,6 +124,7 @@ def main():
     except Exception as e:
         print(f"处理过程中发生错误: {str(e)}")
         raise
+
 
 if __name__ == "__main__":
     main()
