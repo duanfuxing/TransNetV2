@@ -1,30 +1,11 @@
 import os
-import argparse
+import sys
 import cv2
+import argparse
 import tensorflow as tf
 from tqdm import tqdm
 from moviepy import VideoFileClip
 from transnetv2 import TransNetV2
-import sys
-import argparse
-
-
-# 加载模型
-def load_model():
-    gpus = tf.config.experimental.list_physical_devices('GPU')
-    if gpus:
-        try:
-            for gpu in gpus:
-                tf.config.experimental.set_memory_growth(gpu, True)
-        except RuntimeError as e:
-            print(e)
-
-    model = tf.saved_model.load('inference/transnetv2-weights/')
-
-    return model
-
-
-import os
 import numpy as np
 import tensorflow as tf
 
