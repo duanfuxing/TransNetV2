@@ -158,26 +158,39 @@ class TransNetV2:
 
 
 def main():
+    # 解析命令行参数
     parser = argparse.ArgumentParser(description="视频场景切分工具")
-    parser.add_argument("--input", type=str, nargs="+", help="path to video files to process")
-    parser.add_argument("--output", type=str, nargs="+", help="path to video files to process")
+    parser.add_argument("--input", required=True, help="输入视频路径")
+    parser.add_argument("--output", required=True, help="输出目录路径")
     parser.add_argument("--weights", type=str, default=None,
                         help="path to TransNet V2 weights, tries to infer the location if not specified")
     parser.add_argument('--visualize', action="store_true",
                         help="save a png file with prediction visualization for each extracted video")
     args = parser.parse_args()
 
+    # 加载模型
     model = TransNetV2(args.weights)
 
+    # 获取视频的帧和预测结果
     video_frames, single_frame_predictions, all_frame_predictions = model.predict_video(args.input)
     scenes = model.predictions_to_scenes(single_frame_predictions)
 
+    # 加载视频文件
     video_clip = VideoFileClip(args.input)
+
+    # 确保输出文件名包含扩展名，使用 .mp4 作为默认格式
+    output_path = args.output if args.output.endswith('.mp4') else args.output + '.mp4'
+
+    # 切割视频并保存
     for i, (start, end) in enumerate(scenes):
         start_time = start / video_clip.fps
         end_time = end / video_clip.fps
-        segment_clip = video_clip.subclip(start_time, end_time)
-        segment_clip.write_videofile(args.output, codec='libx264', fps=video_clip.fps)
+        segment_clip = video_clip.subclipped(start_time, end_time)
+
+        # 输出每个视频片段
+        segment_clip.write_videofile(output_path, codec='libx264', fps=video_clip.fps)
+
+    # 关闭视频对象
     video_clip.close()
 
 
