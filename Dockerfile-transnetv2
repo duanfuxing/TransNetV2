@@ -16,7 +16,8 @@ RUN pip3 install --no-cache-dir ffmpeg-python \
     gunicorn \
     tensorflow \
     pillow \
-    tqdm
+    tqdm \
+    moviepy
 
 # 安装TransNetV2
 COPY setup.py /tmp
