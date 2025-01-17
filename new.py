@@ -17,8 +17,7 @@ def load_model():
         except RuntimeError as e:
             print(e)
 
-    model_dir = os.path.join(os.path.dirname(__file__), "transnetv2-weights/")
-    model = tf.saved_model.load(model_dir)
+    model = tf.saved_model.load('inference/transnetv2-weights/')
 
     return model
 
