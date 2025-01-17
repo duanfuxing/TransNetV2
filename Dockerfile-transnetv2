@@ -5,6 +5,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip \
     python3-dev \
     ffmpeg \
+    vim \
     && rm -rf /var/lib/apt/lists/*
 
 # 安装Python依赖
@@ -14,7 +15,8 @@ RUN pip3 install --no-cache-dir ffmpeg-python \
     flask \
     gunicorn \
     tensorflow \
-    pillow
+    pillow \
+    tqdm
 
 # 安装TransNetV2
 COPY setup.py /tmp

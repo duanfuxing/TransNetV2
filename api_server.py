@@ -17,20 +17,20 @@ def allowed_file(filename):
 def detect_scenes():
     if 'video' not in request.files:
         return jsonify({'error': 'No video file provided'}), 400
-        
+
     file = request.files['video']
     if file.filename == '' or not allowed_file(file.filename):
         return jsonify({'error': 'Invalid file'}), 400
-        
+
     # 保存上传的视频
     filename = secure_filename(file.filename)
     input_path = os.path.join(UPLOAD_FOLDER, filename)
     file.save(input_path)
-    
+
     # 创建输出目录
     output_dir = os.path.join(OUTPUT_FOLDER, filename.rsplit('.', 1)[0])
     os.makedirs(output_dir, exist_ok=True)
-    
+
     # 处理视频
     try:
         scenes = detector.process_video(input_path, output_dir)
