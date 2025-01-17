@@ -1,6 +1,6 @@
 # gpu service
 services:
-  audio-separator:
+  transnetv2:
     image: catchoco/transnetv2:gpu-v1.0
     container_name: transnetv2
     runtime: nvidia  # 使用 NVIDIA GPU 支持
