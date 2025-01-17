@@ -1,13 +1,15 @@
 import os
-
-from moviepy.editor import VideoFileClip
+import argparse
+from moviepy import VideoFileClip
 from transnetv2 import TransNetV2
 
 if __name__ == '__main__':
 
-    video_path = input('请输入视频文件路径\n')
-    while not os.path.isfile(video_path):
-        video_path = input('请输入正确的视频文件路径\n')
+    parser = argparse.ArgumentParser(description="视频场景切分工具")
+    parser.add_argument("--video", required=True, help="输入视频路径")
+    args = parser.parse_args()
+    video_path = args.video
+
     video_name = os.path.basename(video_path)
     video_name_without_ext = os.path.splitext(video_name)[0]
     video_folder = os.path.dirname(video_path)
