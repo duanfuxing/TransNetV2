@@ -74,20 +74,17 @@ class TransNetV2:
         return single_frame_pred[:len(frames)], all_frames_pred[:len(frames)]  # remove extra padded frames
 
     def predict_video(self, video_fn: str):
-        try:
-            import ffmpeg
-        except ModuleNotFoundError:
-            raise ModuleNotFoundError("For `predict_video` function `ffmpeg` needs to be installed in order to extract "
-                                      "individual frames from video file. Install `ffmpeg` command line tool and then "
-                                      "install python wrapper by `pip install ffmpeg-python`.")
-
         print("[TransNetV2] Extracting frames from {}".format(video_fn))
-        video_stream, err = ffmpeg.input(video_fn).output(
-            "pipe:", format="rawvideo", pix_fmt="rgb24", s="48x27"
-        ).run(capture_stdout=True, capture_stderr=True)
-
-        video = np.frombuffer(video_stream, np.uint8).reshape([-1, 27, 48, 3])
-        return (video, *self.predict_frames(video))
+        clip = VideoFileClip(video_fn, target_resolution=(27, 48))
+        duration = math.floor(clip.duration * 10) / 10
+        fps = clip.fps  # 视频的帧率
+        frames = []
+        for t in range(0, int(duration * fps)):
+            frame = clip.get_frame(t / fps)  # 获取当前时间点的帧
+            if len(frame) != 0:  # 如果帧的长度不为零
+                frames.append(frame)  # 将帧添加到 frames 列表中
+        video = np.array(frames)
+        return video, *self.predict_frames(video)
 
     def predict_video_2(self, video_fn: str):
         print("[TransNetV2] Extracting frames from {}".format(video_fn))

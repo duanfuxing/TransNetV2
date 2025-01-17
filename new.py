@@ -35,7 +35,7 @@ if __name__ == '__main__':
 
     # 加载模型
     model = load_model()
-    video_frames, single_frame_predictions, all_frame_predictions = model.predict_video_2(video_path)
+    video_frames, single_frame_predictions, all_frame_predictions = model.predict_video(video_path)
     scenes = model.predictions_to_scenes(single_frame_predictions)
 
     video_clip = VideoFileClip(video_path)
