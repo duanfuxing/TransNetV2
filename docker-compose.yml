@@ -1,4 +1,6 @@
 # gpu service
+version: '3.8'
+
 services:
   transnetv2:
     image: catchoco/transnetv2:gpu-v1.0
@@ -18,5 +20,6 @@ services:
       - ./:/app
     ports:
       - "5000:5000"
+    restart: unless-stopped
     entrypoint: tail
     command: ["-f", "/dev/null"]
